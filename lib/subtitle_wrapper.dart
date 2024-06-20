@@ -4,7 +4,7 @@ import 'package:subtitle_wrapper_package/bloc/subtitle/subtitle_bloc.dart';
 import 'package:subtitle_wrapper_package/subtitle_wrapper_package.dart';
 import 'package:video_player/video_player.dart';
 
-class SubtitleWrapper extends StatelessWidget {
+class SubtitleWrapper extends StatefulWidget {
   const SubtitleWrapper({
     required this.videoChild,
     required this.subtitleController,
@@ -20,31 +20,36 @@ class SubtitleWrapper extends StatelessWidget {
   final Color? backgroundColor;
 
   @override
+  State<SubtitleWrapper> createState() => _SubtitleWrapperState();
+}
+
+class _SubtitleWrapperState extends State<SubtitleWrapper> {
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        videoChild,
-        if (subtitleController.showSubtitles)
+        widget.videoChild,
+        if (widget.subtitleController.showSubtitles)
           Positioned(
-            top: subtitleStyle.position.top,
-            bottom: subtitleStyle.position.bottom,
-            left: subtitleStyle.position.left,
-            right: subtitleStyle.position.right,
+            top: widget.subtitleStyle.position.top,
+            bottom: widget.subtitleStyle.position.bottom,
+            left: widget.subtitleStyle.position.left,
+            right: widget.subtitleStyle.position.right,
             child: BlocProvider(
               create: (context) => SubtitleBloc(
-                videoPlayerController: videoPlayerController,
+                videoPlayerController: widget.videoPlayerController,
                 subtitleRepository: SubtitleDataRepository(
-                  subtitleController: subtitleController,
+                  subtitleController: widget.subtitleController,
                 ),
-                subtitleController: subtitleController,
+                subtitleController: widget.subtitleController,
               )..add(
                   InitSubtitles(
-                    subtitleController: subtitleController,
+                    subtitleController: widget.subtitleController,
                   ),
                 ),
               child: SubtitleTextView(
-                subtitleStyle: subtitleStyle,
-                backgroundColor: backgroundColor,
+                subtitleStyle: widget.subtitleStyle,
+                backgroundColor: widget.backgroundColor,
               ),
             ),
           )
