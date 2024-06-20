@@ -4,65 +4,62 @@ import 'package:subtitle_wrapper_package/bloc/subtitle/subtitle_bloc.dart';
 import 'package:subtitle_wrapper_package/data/constants/view_keys.dart';
 import 'package:subtitle_wrapper_package/data/models/style/subtitle_style.dart';
 
-class SubtitleTextView extends StatelessWidget {
+class SubtitleTextView extends StatefulWidget {
   const SubtitleTextView({
     required this.subtitleStyle,
     super.key,
     this.backgroundColor,
   });
+
   final SubtitleStyle subtitleStyle;
   final Color? backgroundColor;
 
+  @override
+  State<SubtitleTextView> createState() => _SubtitleTextViewState();
+}
+
+class _SubtitleTextViewState extends State<SubtitleTextView> {
   TextStyle get _textStyle {
-    return subtitleStyle.hasBorder
+    return widget.subtitleStyle.hasBorder
         ? TextStyle(
-            fontSize: subtitleStyle.fontSize,
+            fontSize: widget.subtitleStyle.fontSize,
             foreground: Paint()
-              ..style = subtitleStyle.borderStyle.style
-              ..strokeWidth = subtitleStyle.borderStyle.strokeWidth
-              ..color = subtitleStyle.borderStyle.color,
+              ..style = widget.subtitleStyle.borderStyle.style
+              ..strokeWidth = widget.subtitleStyle.borderStyle.strokeWidth
+              ..color = widget.subtitleStyle.borderStyle.color,
           )
         : TextStyle(
-            fontSize: subtitleStyle.fontSize,
-            color: subtitleStyle.textColor,
+            fontSize: widget.subtitleStyle.fontSize,
+            color: widget.subtitleStyle.textColor,
           );
   }
 
   @override
   Widget build(BuildContext context) {
-    final subtitleBloc = BlocProvider.of<SubtitleBloc>(context);
-
-    // TODO(Joran-Dob): improve this workaround.
-    void subtitleBlocListener(BuildContext _, SubtitleState state) {
-      if (state is SubtitleInitialized) {
-        subtitleBloc.add(LoadSubtitle());
-      }
-    }
-
     return BlocConsumer<SubtitleBloc, SubtitleState>(
-      listener: subtitleBlocListener,
+      listener: _subtitleBlocListener,
       builder: (context, state) {
         if (state is LoadedSubtitle && state.subtitle != null) {
           return Stack(
             children: <Widget>[
               Center(
                 child: Container(
-                  color: backgroundColor,
+                  color: widget.backgroundColor,
                   child: _TextContent(
                     text: state.subtitle!.text,
                     textStyle: _textStyle,
                   ),
                 ),
               ),
-              if (subtitleStyle.hasBorder)
+              if (widget.subtitleStyle.hasBorder)
                 Center(
                   child: Container(
-                    color: backgroundColor,
+                    color: widget.backgroundColor,
                     child: _TextContent(
                       text: state.subtitle!.text,
                       textStyle: TextStyle(
-                        color: subtitleStyle.textColor,
-                        fontSize: subtitleStyle.fontSize,
+                        color: widget.subtitleStyle.textColor,
+                        fontSize: widget.subtitleStyle.fontSize,
                       ),
                     ),
                   ),
@@ -74,6 +71,12 @@ class SubtitleTextView extends StatelessWidget {
         return const SizedBox();
       },
     );
+  }
+
+  void _subtitleBlocListener(BuildContext context, SubtitleState state) {
+    if (state is SubtitleInitialized) {
+      context.read<SubtitleBloc>().add(LoadSubtitle());
+    }
   }
 }
 
